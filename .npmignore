@@ -1,0 +1,6 @@
+.*
+*.log
+
+tests
+src
+yarn.lock
