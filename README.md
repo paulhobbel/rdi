@@ -16,3 +16,5 @@ $ npm install rdi reflect-metadata --save
 RDI required Reflect Metadata in order to work correctly and you should import `reflect-metadata` only once in your entire application.
 
 ## Usage
+This README is still a concept sorry :/
+Checkout the test files to see how to use the Injector for now.
