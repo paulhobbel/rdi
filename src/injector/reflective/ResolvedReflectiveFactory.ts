@@ -1,6 +1,6 @@
 import { ReflectiveDependency } from './ReflectiveDependency';
-import { noAnnotationError } from '../ReflectiveProvider';
-import { KeyRegistry } from '../ReflectiveKey';
+import { NoAnnotationError } from '../../errors';
+import { KeyRegistry } from '../KeyRegistry';
 import { Type } from '../../Type';
 import { NormalizedProvider } from '../providers';
 
@@ -57,7 +57,7 @@ export class ResolvedReflectiveFactory {
 
         if (!params) { return []; }
         if (params.some(param => param == null)) {
-            throw noAnnotationError(type, params);
+            throw new NoAnnotationError(type, params);
         }
 
         return params.map(param => this.extractToken(type, param, params));
@@ -93,7 +93,7 @@ export class ResolvedReflectiveFactory {
         }
 
         if (!token) {
-            throw noAnnotationError(type, params);
+            throw new NoAnnotationError(type, params);
         }
 
         return ReflectiveDependency.fromToken(token, optional, visibility);

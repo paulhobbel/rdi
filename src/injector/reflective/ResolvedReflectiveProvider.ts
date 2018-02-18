@@ -1,8 +1,9 @@
-import { ReflectiveKey, KeyRegistry } from '../ReflectiveKey';
+import { ReflectiveKey } from '../ReflectiveKey';
+import { KeyRegistry } from '../KeyRegistry';
 import { ResolvedReflectiveFactory } from './ResolvedReflectiveFactory';
 import { Provider, NormalizedProvider } from '../providers';
 import { Type } from '../../Type';
-import { stringify } from '../../util';
+import { InvalidProviderError, NoMixMultiProviderError } from '../../errors';
 
 export class ResolvedReflectiveProvider {
     constructor(
@@ -66,7 +67,7 @@ export class ResolvedReflectiveProvider {
             else if (provider instanceof Array) {
                 this.normalizeProviders(provider, res);
             } else {
-                throw new Error(`Invalid provider - only instances of Provider and Type are allowed, got: ${stringify(provider)}`);
+                throw new InvalidProviderError(provider);
             }
         }
 
@@ -84,7 +85,7 @@ export class ResolvedReflectiveProvider {
             const existing = map.get(provider.key.id);
             if (existing) {
                 if (provider.multiProvider !== existing.multiProvider) {
-                    throw new Error(`Cannot mix multi providers and regular providers, got: ${existing} ${provider}`);
+                    throw new NoMixMultiProviderError(existing, provider);
                 }
 
                 if (provider.multiProvider) {

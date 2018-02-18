@@ -1,4 +1,5 @@
 import { stringify } from '../util';
+import { NoTokenError } from '../errors';
 
 /**
  * A unique object used for retrieving items from the {@link ReflectiveInjector}.
@@ -14,11 +15,34 @@ import { stringify } from '../util';
  * keys automatically when resolving providers.
  */
 export class ReflectiveKey {
+    constructor(
+        /**
+         * A token, usually a Type or InjectionToken
+         */
+        private _token: Object,
 
-    constructor(public token: Object, public id: number) {
-        if (!token) {
-            throw new Error('Token must be defined!');
+        /**
+         * A system-wide unique id.
+         */
+        private _id: number
+    ) {
+        if (!_token) {
+            throw new NoTokenError();
         }
+    }
+
+    /**
+     * Returns the key's unique id.
+     */
+    get id(): number {
+        return this._id;
+    }
+
+    /**
+     * Returns the key's token.
+     */
+    get token(): Object {
+        return this._token
     }
 
     /**
@@ -26,32 +50,5 @@ export class ReflectiveKey {
      */
     get displayName(): string {
         return stringify(this.token);
-    }
-}
-
-export class KeyRegistry {
-    private static keys = new Map<Object, ReflectiveKey>();
-
-    /**
-     * Retrieves a `Key` for a token.
-     * @param token - Lookup token
-     */
-    static get(token: Object): ReflectiveKey {
-        if (token instanceof ReflectiveKey) return token;
-
-        if (this.keys.has(token)) {
-            return this.keys.get(token)!;
-        }
-
-        const key = new ReflectiveKey(token, this.numberOfKeys);
-        this.keys.set(token, key);
-        return key;
-    }
-
-    /**
-     * Returns the number of keys registered in the system.
-     */
-    static get numberOfKeys(): number {
-        return this.keys.size;
     }
 }

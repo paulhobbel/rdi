@@ -7,6 +7,10 @@ export const ANNOTATIONS = '__annotations__';
 export const PARAMETERS = '__paramaters__';
 export const PROP_METADATA = '__prop__metadata__';
 
+/**
+ * Utility to get parent constructor
+ * @param ctor - Function to get parent constructor from
+ */
 export function getParentCtor(ctor: Function): Type<any> {
     const parentProto = Object.getPrototypeOf(ctor.prototype);
     const parentCtor = parentProto ? parentProto.constructor : null;

@@ -3,10 +3,13 @@ import { InjectionToken } from './InjectionToken';
 import { Type } from '../Type';
 import { Provider } from './providers';
 import { ResolvedReflectiveProvider, ResolvedReflectiveFactory, ReflectiveDependency } from './reflective';
-import { KeyRegistry, ReflectiveKey } from './ReflectiveKey';
+import { ReflectiveKey } from './ReflectiveKey';
+import { KeyRegistry } from './KeyRegistry';
 import { Self, SkipSelf } from '../decorators';
+import { NoProviderError } from '../errors';
 
 const NOT_RESOLVED = new Object();
+const INJECTOR_KEY = KeyRegistry.get(Injector);
 
 /**
  * A reflective injector, can also be seen as smart injector
@@ -16,7 +19,14 @@ export class ReflectiveInjector implements Injector {
 
     private resolveMap: Map<number, any> = new Map();
 
-    constructor(
+    /**
+     * Private ReflectiveInjector Constructor.
+     * Use {@link #fromResolvedProviders} or {@link #resolveAndCreate}
+     * to create a new ReflectiveInjector.
+     * @param providers - Resolved providers
+     * @param parent - Parent injector
+     */
+    private constructor(
         private providers: ResolvedReflectiveProvider[],
         private parent: Injector = null
     ) { }
@@ -41,34 +51,6 @@ export class ReflectiveInjector implements Injector {
         return Promise.resolve(this.getByKey(KeyRegistry.get(token), null, notFoundValue));
     }
 
-    /**
-     * Resolves a provider and instantiates an object in the context of the injector.
-     *
-     * The created object does not get cached by the injector.
-     *
-     * ### Example ([live demo](http://plnkr.co/edit/yvVXoB?p=preview))
-     *
-     * ```typescript
-     * @Injectable()
-     * class Engine {
-     * }
-     *
-     * @Injectable()
-     * class Car {
-     *   constructor(public engine:Engine) {}
-     * }
-     *
-     * var injector = ReflectiveInjector.resolveAndCreate([Engine]);
-     *
-     * var car = injector.resolveAndInstantiate(Car);
-     * expect(car.engine).toBe(injector.get(Engine));
-     * expect(car).not.toBe(injector.resolveAndInstantiate(Car));
-     * ```
-     */
-    resolveAndInstantiate(provider: Provider): any {
-        return this.instantiateProvider(ReflectiveInjector.resolve([provider])[0]);
-    }
-
     private instantiateProvider(provider: ResolvedReflectiveProvider): any {
         if (provider.multiProvider) {
             const res = [];
@@ -85,22 +67,12 @@ export class ReflectiveInjector implements Injector {
     private instantiate(resolvedFactory: ResolvedReflectiveFactory): any {
         const factory = resolvedFactory.factory;
 
-        let deps: any[];
         try {
-            deps = resolvedFactory.dependencies.map(dep => this.getByReflectiveDependency(dep));
+            const deps = resolvedFactory.dependencies.map(dep => this.getByReflectiveDependency(dep));
+            return factory(...deps);;
         } catch (err) {
             throw err;
         }
-
-        let obj: any;
-        try {
-            obj = factory(...deps);
-        } catch (err) {
-            // Better error...
-            throw err;
-        }
-
-        return obj;
     }
 
     private getByReflectiveDependency(dep: ReflectiveDependency): any {
@@ -164,22 +136,34 @@ export class ReflectiveInjector implements Injector {
             return notFoundValue;
         }
 
-        //throw noProviderError(this, key);
-        throw new Error('No provider for key: ' + key.displayName);
+        throw new NoProviderError(key);
     }
 
+    /**
+     * Resolve given providers
+     * @param providers - Providers to resolve
+     */
     static resolve(providers: Provider[]): ResolvedReflectiveProvider[] {
         return ResolvedReflectiveProvider.fromProviders(providers);
     }
 
-    static resolveAndCreate(providers: Provider[], parent?: Injector): ReflectiveInjector {
-        const resolvedProviders = this.resolve(providers);
-        return ReflectiveInjector.fromResolvedProviders(resolvedProviders, parent);
-    }
-
+    /**
+     * Creates a ReflectiveInjector based on given ResolvedReflectiveProvider's
+     * @param providers - Resolved providers
+     * @param parent - Parent Injector
+     */''
     static fromResolvedProviders(providers: ResolvedReflectiveProvider[], parent?: Injector): ReflectiveInjector {
         return new ReflectiveInjector(providers, parent);
     }
-}
 
-const INJECTOR_KEY = KeyRegistry.get(Injector);
+    /**
+     * Combines {@link ReflectiveInjector#resolve} and {@link ReflectiveInjector#fromResolvedProviders}
+     * to create a Injector from given unresolved providers
+     * @param providers - Providers to resolve
+     * @param parent - Parent Injector
+     */
+    static resolveAndCreate(providers: Provider[], parent?: Injector): ReflectiveInjector {
+        const resolvedProviders = ReflectiveInjector.resolve(providers);
+        return ReflectiveInjector.fromResolvedProviders(resolvedProviders, parent);
+    }
+}

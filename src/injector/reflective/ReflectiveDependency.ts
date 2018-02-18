@@ -1,4 +1,5 @@
-import { KeyRegistry, ReflectiveKey } from '../ReflectiveKey';
+import { ReflectiveKey } from '../ReflectiveKey';
+import { KeyRegistry } from '../KeyRegistry';
 import { Self, SkipSelf } from '../../decorators';
 
 export class ReflectiveDependency {
