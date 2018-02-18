@@ -1,6 +1,5 @@
-import { Reflector } from './reflector';
-
-export { Reflector } from './reflector';
+import { Reflector } from './Reflector';
+export { Reflector } from './Reflector';
 
 /**
  * The {@link Reflector} used internally in DiscordBuddy to access metadata
