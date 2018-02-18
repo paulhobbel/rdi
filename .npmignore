@@ -1,6 +1,9 @@
 .*
-*.log
 
-tests
-src
+node_modules/
+test/
+src/
+
+tsconfig.build.json
+tsconfig.json
 yarn.lock

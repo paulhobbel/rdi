@@ -2,4 +2,5 @@ export { ClassProvider, ExistingProvider, FactoryProvider, InjectionToken, Injec
 export { InvalidProviderError, NoAnnotationError, NoMixMultiProviderError, NoProviderError, NoTokenError } from './errors';
 export { getParentCtor, makeDecorator, makeParamDecorator, makePropDecorator, stringify } from './util';
 export { Inject, Injectable, Optional, Self, SkipSelf } from './decorators';
-export { Reflector } from './reflector';
+export { Reflector, reflector } from './reflector';
+export { Type } from './Type';

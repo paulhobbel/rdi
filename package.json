@@ -1,6 +1,6 @@
 {
   "name": "rdi",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "A port of Angular's ReflectiveInjector",
   "main": "lib/index.js",
   "typings": "lib/index.d.js",
